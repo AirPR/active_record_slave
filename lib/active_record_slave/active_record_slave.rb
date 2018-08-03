@@ -13,7 +13,10 @@ module ActiveRecordSlave
   #     In a non-Rails environment, supply the environment such as
   #     'development', 'production'
   def self.install!(adapter_class = nil, environment = nil)
-    if ActiveRecord::Base.connected?
+    # When the DBMS is not available, an exception (e.g. PG::ConnectionBad) is raised
+    active_db_connection = ActiveRecord::Base.connection.active? rescue false
+
+    if active_db_connection
       slave_config =
         if ActiveRecord::Base.connection.respond_to?(:config)
           ActiveRecord::Base.connection.config[:slave]
